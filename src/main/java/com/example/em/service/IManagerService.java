@@ -2,6 +2,7 @@ package com.example.em.service;
 
 import com.example.em.dto.manager.CreateManagerDTO;
 import com.example.em.dto.manager.ManagerDTO;
+import com.example.em.dto.response.ManagerLoginDTO;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,4 +13,5 @@ public interface IManagerService {
     List<ManagerDTO> getAll();
     Boolean deleteManagerById(Long id);
     ManagerDTO getManagerById(Long id);
+    ManagerLoginDTO checkLogin(String email, String password);
 }

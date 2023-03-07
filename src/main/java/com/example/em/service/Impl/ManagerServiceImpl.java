@@ -2,6 +2,7 @@ package com.example.em.service.Impl;
 
 import com.example.em.dto.manager.CreateManagerDTO;
 import com.example.em.dto.manager.ManagerDTO;
+import com.example.em.dto.response.ManagerLoginDTO;
 import com.example.em.entity.Admin;
 import com.example.em.entity.Manager;
 import com.example.em.repository.AdminRepository;
@@ -66,6 +67,17 @@ public class ManagerServiceImpl implements IManagerService {
         if(optionalManager.isPresent()){
             Manager manager = optionalManager.get();
             result = modelMapper.map(manager, ManagerDTO.class);
+        }
+        return result;
+    }
+
+    @Override
+    public ManagerLoginDTO checkLogin(String email, String password) {
+        ManagerLoginDTO result = null;
+        Optional<Manager> optionalManager = managerRepo.findByEmailAndPassword(email, password);
+        if(optionalManager.isPresent()){
+            Manager manager = optionalManager.get();
+            result = modelMapper.map(manager, ManagerLoginDTO.class);
         }
         return result;
     }
