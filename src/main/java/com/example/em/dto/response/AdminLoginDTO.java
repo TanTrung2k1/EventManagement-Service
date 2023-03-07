@@ -9,5 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class AdminLoginDTO {
     private Long id;
+    private final String role = "AD";
     private String username;
 }

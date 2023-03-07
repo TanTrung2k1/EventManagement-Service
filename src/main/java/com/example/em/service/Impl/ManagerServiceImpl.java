@@ -2,6 +2,7 @@ package com.example.em.service.Impl;
 
 import com.example.em.dto.manager.CreateManagerDTO;
 import com.example.em.dto.manager.ManagerDTO;
+import com.example.em.dto.response.AdminLoginDTO;
 import com.example.em.dto.response.ManagerLoginDTO;
 import com.example.em.entity.Admin;
 import com.example.em.entity.Manager;
@@ -12,6 +13,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -24,12 +26,17 @@ public class ManagerServiceImpl implements IManagerService {
     private AdminRepository adminRepo;
     @Autowired
     private ModelMapper modelMapper;
+
+    private Admin getAdminInSession(HttpSession session){
+        AdminLoginDTO adminDTO = (AdminLoginDTO) session.getAttribute("AD");
+        Admin admin = adminRepo.getReferenceById(adminDTO.getId());
+        return admin;
+    }
+
     @Override
-    public CreateManagerDTO addManager(CreateManagerDTO managerDTO) {
-        long id = 1;
-        Admin admin = getAdminById(id);
+    public CreateManagerDTO addManager(CreateManagerDTO managerDTO, HttpSession session) {
         Manager manager = modelMapper.map(managerDTO, Manager.class);
-        manager.setAdmin(admin);
+        manager.setAdmin(getAdminInSession(session));
         manager.setStatus(true);
         managerRepo.save(manager);
         return modelMapper.map(manager, CreateManagerDTO.class);
@@ -82,8 +89,4 @@ public class ManagerServiceImpl implements IManagerService {
         return result;
     }
 
-
-    private Admin getAdminById(Long id){
-        return adminRepo.getReferenceById(id);
-    }
 }

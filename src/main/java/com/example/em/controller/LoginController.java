@@ -31,7 +31,15 @@ public class LoginController {
 
     @PostMapping("/login")
     public ResponseEntity<ResponseObject> login(HttpServletRequest request, @RequestBody LoginDTO login){
-        HttpSession session = request.getSession();
+
+        //check previous login information
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate(); // clear previous login information
+        }
+
+        // create a new session
+        session = request.getSession(true);
 
         AdminLoginDTO admin = adminService.checkLogin(login.getEmail(), login.getPassword());
         if (admin != null){

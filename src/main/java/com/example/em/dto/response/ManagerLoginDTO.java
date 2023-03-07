@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ManagerLoginDTO {
     private Long id;
+    private final String role = "MA";
     private String email;
     private String name;
     private String phoneNumber;

@@ -5,11 +5,12 @@ import com.example.em.dto.manager.ManagerDTO;
 import com.example.em.dto.response.ManagerLoginDTO;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpSession;
 import java.util.List;
 
 @Service
 public interface IManagerService {
-    CreateManagerDTO addManager(CreateManagerDTO managerDTO);
+    CreateManagerDTO addManager(CreateManagerDTO managerDTO, HttpSession session);
     List<ManagerDTO> getAll();
     Boolean deleteManagerById(Long id);
     ManagerDTO getManagerById(Long id);
