@@ -3,6 +3,7 @@ package com.example.em.controller;
 import com.example.em.dto.manager.CreateManagerDTO;
 import com.example.em.dto.manager.ManagerDTO;
 import com.example.em.dto.response.AdminLoginDTO;
+import com.example.em.dto.response.ManagerLoginDTO;
 import com.example.em.dto.response.ResponseObject;
 import com.example.em.service.IManagerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +20,17 @@ public class ManagerController {
     private IManagerService service;
 
     //check author admin
-    private Boolean isAuthor(HttpSession session){
+    private Boolean isAuthorOfAdmin(HttpSession session){
         boolean result = false;
         AdminLoginDTO manager = (AdminLoginDTO) session.getAttribute("AD");
+        if(manager != null){
+            result = true;
+        }
+        return result;
+    }
+    private Boolean isAuthorOfAdminOfManager(HttpSession session){
+        boolean result = false;
+        ManagerLoginDTO manager = (ManagerLoginDTO) session.getAttribute("MA");
         if(manager != null){
             result = true;
         }
@@ -30,7 +39,7 @@ public class ManagerController {
 
     @GetMapping
     public ResponseEntity<ResponseObject> getAll(HttpSession session){
-        if(isAuthor(session)){
+        if(isAuthorOfAdmin(session)){
             List<ManagerDTO> result = service.getAll();
             ResponseObject response = new ResponseObject(HttpStatus.OK.toString(), "List manager", result);
             return ResponseEntity.status(HttpStatus.OK).body(response);
@@ -41,7 +50,7 @@ public class ManagerController {
     }
     @GetMapping("{id}")
     public ResponseEntity<ResponseObject> getManagerById(HttpSession session, @PathVariable Long id){
-        if(isAuthor(session)){
+        if(isAuthorOfAdmin(session) || isAuthorOfAdminOfManager(session)){
             ManagerDTO result = service.getManagerById(id);
             if(result != null){
                 ResponseObject response = new ResponseObject(HttpStatus.OK.toString(), "Manager details", result);
@@ -58,7 +67,7 @@ public class ManagerController {
 
     @PostMapping
     public ResponseEntity<ResponseObject> create(HttpSession session, @RequestBody CreateManagerDTO managerDTO){
-        if(isAuthor(session)){
+        if(isAuthorOfAdmin(session)){
             CreateManagerDTO result = service.addManager(managerDTO, session);
             ResponseObject response = new ResponseObject(HttpStatus.CREATED.toString(), "Manager create successfully", result);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -69,7 +78,7 @@ public class ManagerController {
 
     @DeleteMapping("{id}")
     public ResponseEntity<ResponseObject> deleteById(HttpSession session, @PathVariable Long id) {
-        if(isAuthor(session)){
+        if(isAuthorOfAdmin(session)){
             boolean isDeleted = service.deleteManagerById(id);
             if (isDeleted) {
                 ResponseObject response = new ResponseObject(HttpStatus.OK.toString(), "Manager with ID " + id + " deleted successfully", null);
