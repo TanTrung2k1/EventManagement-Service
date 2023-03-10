@@ -1,6 +1,7 @@
 package com.example.em.entity;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,6 +12,7 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @Table(name = "event_booking",
         uniqueConstraints = {@UniqueConstraint(columnNames = {"event_id", "user_id"})})
 //ràng buộc 1 user chỉ dc book 1 lần cho 1 sự kiện
