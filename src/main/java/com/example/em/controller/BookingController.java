@@ -2,12 +2,9 @@ package com.example.em.controller;
 
 import com.example.em.dto.booking.BookingDTO;
 import com.example.em.dto.booking.CBookingDTO;
-import com.example.em.dto.manager.CreateManagerDTO;
-import com.example.em.dto.manager.ManagerDTO;
-import com.example.em.dto.response.AdminLoginDTO;
-import com.example.em.dto.response.ManagerLoginDTO;
+
 import com.example.em.dto.response.ResponseObject;
-import com.example.em.dto.response.UserLoginDTO;
+
 import com.example.em.service.IEventBookingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,31 +14,18 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpSession;
 import java.util.List;
 
+import static com.example.em.config.Author.isAuthorOfManager;
+import static com.example.em.config.Author.isAuthorOfUser;
+
 @RestController
 @RequestMapping("/api/booking")
 public class BookingController {
 
     @Autowired
     private IEventBookingService bookingService;
-    private Boolean isAuthor(HttpSession session){
-        boolean result = false;
-        UserLoginDTO user = (UserLoginDTO) session.getAttribute("US");
-        if(user != null){
-            result = true;
-        }
-        return result;
-    }
-    private Boolean isAuthorOfManager(HttpSession session){
-        boolean result = false;
-        ManagerLoginDTO user = (ManagerLoginDTO) session.getAttribute("MA");
-        if(user != null){
-            result = true;
-        }
-        return result;
-    }
     @PostMapping
     public ResponseEntity<ResponseObject> createBooking(HttpSession session, @RequestBody CBookingDTO bookingDTO){
-        if(isAuthor(session)){
+        if(isAuthorOfUser(session)){
             CBookingDTO result = bookingService.createBooking(bookingDTO, session);
             if(result != null){
                 ResponseObject response = new ResponseObject(HttpStatus.CREATED.toString(), "Manager create successfully", result);
@@ -57,7 +41,7 @@ public class BookingController {
 
     @DeleteMapping("{id}")
     public ResponseEntity<ResponseObject> deleteById(HttpSession session, @PathVariable Long id) {
-        if (isAuthor(session)) {
+        if (isAuthorOfUser(session)) {
             boolean isDeleted = bookingService.cancelBooking(id);
             if (isDeleted) {
                 ResponseObject response = new ResponseObject(HttpStatus.OK.toString(), "Booking with ID " + id + " canceled successfully", null);

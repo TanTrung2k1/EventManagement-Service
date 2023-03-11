@@ -2,8 +2,6 @@ package com.example.em.controller;
 
 import com.example.em.dto.manager.CreateManagerDTO;
 import com.example.em.dto.manager.ManagerDTO;
-import com.example.em.dto.response.AdminLoginDTO;
-import com.example.em.dto.response.ManagerLoginDTO;
 import com.example.em.dto.response.ResponseObject;
 import com.example.em.service.IManagerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,29 +11,14 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpSession;
 import java.util.List;
 
+import static com.example.em.config.Author.isAuthorOfAdmin;
+import static com.example.em.config.Author.isAuthorOfManager;
+
 @RestController
 @RequestMapping("api/manager")
 public class ManagerController {
     @Autowired
     private IManagerService service;
-
-    //check author admin
-    private Boolean isAuthorOfAdmin(HttpSession session){
-        boolean result = false;
-        AdminLoginDTO manager = (AdminLoginDTO) session.getAttribute("AD");
-        if(manager != null){
-            result = true;
-        }
-        return result;
-    }
-    private Boolean isAuthorOfAdminOfManager(HttpSession session){
-        boolean result = false;
-        ManagerLoginDTO manager = (ManagerLoginDTO) session.getAttribute("MA");
-        if(manager != null){
-            result = true;
-        }
-        return result;
-    }
 
     @GetMapping
     public ResponseEntity<ResponseObject> getAll(HttpSession session){
@@ -50,7 +33,7 @@ public class ManagerController {
     }
     @GetMapping("{id}")
     public ResponseEntity<ResponseObject> getManagerById(HttpSession session, @PathVariable Long id){
-        if(isAuthorOfAdmin(session) || isAuthorOfAdminOfManager(session)){
+        if(isAuthorOfAdmin(session) || isAuthorOfManager(session)){
             ManagerDTO result = service.getManagerById(id);
             if(result != null){
                 ResponseObject response = new ResponseObject(HttpStatus.OK.toString(), "Manager details", result);
@@ -60,7 +43,7 @@ public class ManagerController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
             }
         }
-        ResponseObject response = new ResponseObject(HttpStatus.UNAUTHORIZED.toString(), "Admin only", null);
+        ResponseObject response = new ResponseObject(HttpStatus.UNAUTHORIZED.toString(), "Admin and Manager only", null);
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
 
     }
