@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpSession;
 import java.util.List;
 
-import static com.example.em.config.Author.isAuthorOfUser;
+import static com.example.em.config.Author.*;
 
 @RestController
 @RequestMapping("/api/event")
@@ -24,28 +24,19 @@ public class EventController {
     @Autowired
     private IEventService service;
 
-    private Boolean isAuthorOfManager(HttpSession session){
-        boolean result = false;
-        ManagerLoginDTO user = (ManagerLoginDTO) session.getAttribute("MA");
-        if(user != null){
-            result = true;
-        }
-        return result;
-    }
+
 
     @GetMapping
     public ResponseEntity<ResponseObject> getAll(HttpSession session) {
-        if(isAuthorOfManager(session)){
+        if(isAuthorOfManager(session) || isAuthorOfAdmin(session) || isAuthorOfUser(session)){
             List<EventDTO> result = service.getAll();
             ResponseObject response = new ResponseObject(HttpStatus.OK.toString(), "List event", result);
             return ResponseEntity.status(HttpStatus.OK).body(response);
         }
-        ResponseObject response = new ResponseObject(HttpStatus.UNAUTHORIZED.toString(), "Manager only", null);
+        ResponseObject response = new ResponseObject(HttpStatus.UNAUTHORIZED.toString(), "Need Login", null);
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
-//    public List<EventDTO> getAll(){
-//        return service.getAll();
-//    }
+
 
     @PostMapping
     public ResponseEntity<ResponseObject> create(@RequestBody CEventDTO eventDTO, HttpSession session){
@@ -65,7 +56,7 @@ public class EventController {
     }
     @DeleteMapping("{id}")
     public ResponseEntity<ResponseObject> deleteById(HttpSession session, @PathVariable Long id) {
-        if (Author.isAuthorOfManager(session)) {
+        if (isAuthorOfManager(session)) {
             boolean isDeleted = service.deleteEventById(id);
             if (isDeleted) {
                 ResponseObject response = new ResponseObject(HttpStatus.OK.toString(), "Event with ID " + id + " canceled successfully", null);
