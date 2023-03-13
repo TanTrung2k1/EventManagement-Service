@@ -1,6 +1,7 @@
 package com.example.em.service.Impl;
 
 import com.example.em.dto.event.CEventDTO;
+import com.example.em.dto.event.DEventDTO;
 import com.example.em.dto.listEvent.EventDTO;
 import com.example.em.dto.response.ManagerLoginDTO;
 import com.example.em.dto.response.UserLoginDTO;
@@ -13,12 +14,20 @@ import com.example.em.repository.ManagerRepository;
 import com.example.em.service.IEventService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Component
 public class EventServiceImpl implements IEventService {
@@ -44,16 +53,76 @@ public class EventServiceImpl implements IEventService {
         Manager manager = managerRepo.getReferenceById(managerDTO.getId());
         return manager;
     }
-    @Override
-    public CEventDTO addEvent(CEventDTO eventDTO, HttpSession session) {
+//    @Override
+//    public CEventDTO addEvent(CEventDTO eventDTO, HttpSession session, MultipartFile file) {
+//
+//        Manager manager = getManagerInSession(session);
+//        Event event = modelMapper.map(eventDTO, Event.class);
+//        event.setManager(manager);
+//        event.setStatus(true);
+//        repo.save(event);
+//
+//        return modelMapper.map(event, CEventDTO.class);
+//    }
 
-        Manager manager = getManagerInSession(session);
-        Event event = modelMapper.map(eventDTO, Event.class);
-        event.setManager(manager);
+    public DEventDTO addEvent(CEventDTO eventDTO, HttpSession session, MultipartFile file) {
+        // create new Event entity from DTO
+        Event event = new Event();
+        event.setName(eventDTO.getName());
+        event.setLocation(eventDTO.getLocation());
+        event.setStartTime(eventDTO.getStartTime());
+        event.setEndTime(eventDTO.getEndTime());
+        event.setDesc(eventDTO.getDesc());
         event.setStatus(true);
+
+        // get the currently logged in manager and set as the event's manager
+        Manager manager = getManagerInSession(session);
+        event.setManager(manager);
+
+        // check if file is empty
+        if (file.isEmpty()) {
+            return null;
+        }
+
+        // generate file name using UUID to ensure uniqueness
+        String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+
+        // Get the path to the project's image directory
+        String projectDir = System.getProperty("user.dir");
+        Path imageDir = Paths.get(projectDir, "images");
+
+        // create file path using the image directory and generated file name
+        String filePath = imageDir.resolve(fileName).toString();
+
+        // save file to disk
+        try {
+            Path path = Paths.get(filePath);
+            Files.write(path, file.getBytes());
+        } catch (IOException e) {
+            // handle file write error
+            return null;
+        }
+
+        // set file path in the event entity
+        event.setFilePath(filePath);
+
+        // save event entity to database
         repo.save(event);
 
-        return modelMapper.map(event, CEventDTO.class);
+        // create URL to view uploaded image
+        String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
+        String fileUrl = baseUrl + "/image/" + fileName;
+
+        DEventDTO result = DEventDTO.builder()
+                .name(event.getName())
+                .location(event.getLocation())
+                .startTime(event.getStartTime())
+                .endTime(event.getEndTime())
+                .desc(event.getDesc())
+                .file_path(fileUrl)
+                .build();
+        // convert the saved entity back to DTO and return it
+        return result;
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.example.em.controller;
 
 import com.example.em.config.Author;
 import com.example.em.dto.event.CEventDTO;
+import com.example.em.dto.event.DEventDTO;
 import com.example.em.dto.listEvent.EventDTO;
 import com.example.em.dto.manager.CreateManagerDTO;
 import com.example.em.dto.response.ManagerLoginDTO;
@@ -9,12 +10,25 @@ import com.example.em.dto.response.ResponseObject;
 import com.example.em.service.IEventService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.UUID;
 
 import static com.example.em.config.Author.*;
 
@@ -23,6 +37,7 @@ import static com.example.em.config.Author.*;
 public class EventController {
     @Autowired
     private IEventService service;
+
 
 
 
@@ -38,13 +53,38 @@ public class EventController {
     }
 
 
-    @PostMapping
-    public ResponseEntity<ResponseObject> create(@RequestBody CEventDTO eventDTO, HttpSession session){
+//    @PostMapping
+//    public ResponseEntity<ResponseObject> create(@RequestBody CEventDTO eventDTO, HttpSession session){
+//        if(isAuthorOfManager(session)) {
+//            CEventDTO result = service.addEvent(eventDTO, session);
+//
+//            if(result != null){
+//                ResponseObject response = new ResponseObject(HttpStatus.CREATED.toString(), "Event create successfully", result);
+//                return ResponseEntity.status(HttpStatus.CREATED).body(response);
+//            }else{
+//                ResponseObject response = new ResponseObject(HttpStatus.BAD_REQUEST.toString(), "Can't create event", eventDTO);
+//                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+//            }
+//        }
+//        ResponseObject response = new ResponseObject(HttpStatus.UNAUTHORIZED.toString(), "Manager only", null);
+//        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+//    }
+
+    @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ResponseObject> create(@RequestParam(value = "name") String name,
+                                                 @RequestParam(value = "location") String location,
+                                                 @RequestParam(value = "startTime") String startTime,
+                                                 @RequestParam(value = "endTime") String endTime,
+                                                 @RequestParam(value = "desc") String desc,
+                                                 @RequestParam(value = "file") MultipartFile file,
+                                                 HttpSession session){
         if(isAuthorOfManager(session)) {
-            CEventDTO result = service.addEvent(eventDTO, session);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+            CEventDTO eventDTO = CEventDTO.builder().name(name).location(location).startTime(LocalDateTime.parse(startTime, formatter)).endTime(LocalDateTime.parse(endTime, formatter)).desc(desc).build();
+            DEventDTO result = service.addEvent(eventDTO, session, file);
 
             if(result != null){
-                ResponseObject response = new ResponseObject(HttpStatus.CREATED.toString(), "Event create successfully", result);
+                ResponseObject response = new ResponseObject(HttpStatus.CREATED.toString(), "Event created successfully", result);
                 return ResponseEntity.status(HttpStatus.CREATED).body(response);
             }else{
                 ResponseObject response = new ResponseObject(HttpStatus.BAD_REQUEST.toString(), "Can't create event", eventDTO);
@@ -52,7 +92,7 @@ public class EventController {
             }
         }
         ResponseObject response = new ResponseObject(HttpStatus.UNAUTHORIZED.toString(), "Manager only", null);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
     @DeleteMapping("{id}")
     public ResponseEntity<ResponseObject> deleteById(HttpSession session, @PathVariable Long id) {

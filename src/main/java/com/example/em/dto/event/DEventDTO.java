@@ -11,11 +11,13 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CEventDTO {
+public class DEventDTO {
     private String name;
     private String location;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private String desc;
+    private String file_path;
+
 
 }
