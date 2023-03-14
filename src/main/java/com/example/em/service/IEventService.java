@@ -3,6 +3,7 @@ package com.example.em.service;
 import com.example.em.dto.event.CEventDTO;
 import com.example.em.dto.event.DEventDTO;
 import com.example.em.dto.listEvent.EventDTO;
+import com.example.em.entity.Event;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -12,6 +13,9 @@ import java.util.List;
 @Service
 public interface IEventService {
     List<EventDTO> getAll();
-    DEventDTO addEvent(CEventDTO eventDTO, HttpSession session, MultipartFile file);
+    //DEventDTO addEvent(CEventDTO eventDTO, HttpSession session, MultipartFile file);
+    CEventDTO addEvent(CEventDTO eventDTO, HttpSession session);
     Boolean deleteEventById(Long id);
+
+    Event getEventById(Long eventId);
 }
