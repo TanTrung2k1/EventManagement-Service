@@ -54,7 +54,7 @@ public class UserServiceImpl implements IUserService {
     @Override
     public UserDTO addUser(CreateUserDTO createUserDTO) {
         User user = modelMapper.map(createUserDTO, User.class);
-        if(userRepository.findByNameAndStatusTrue(user.getName()).isEmpty()) {
+        if(userRepository.findByEmailAndStatusTrue(user.getEmail()).isEmpty()) {
             user.setStatus(true);
             return modelMapper.map(userRepository.save(user), UserDTO.class);
         }
