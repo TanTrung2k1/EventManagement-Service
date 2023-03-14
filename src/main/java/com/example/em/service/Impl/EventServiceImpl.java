@@ -42,7 +42,15 @@ public class EventServiceImpl implements IEventService {
         List<Event> list = repo.findAll();
         List<EventDTO> result = new ArrayList<>();
         for(Event event : list){
+            String path = event.getFilePath();
+            int lastBackslashIndex = path.lastIndexOf('\\');
+            String filenameWithExtension = path.substring(lastBackslashIndex + 1);
+            String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
+            String fileUrl = baseUrl + "/image/" + filenameWithExtension;
+
             EventDTO eventDTO = modelMapper.map(event, EventDTO.class);
+
+            eventDTO.setFile_path(fileUrl);
             result.add(eventDTO);
         }
         return result;

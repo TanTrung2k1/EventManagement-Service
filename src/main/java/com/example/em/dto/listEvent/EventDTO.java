@@ -16,6 +16,7 @@ public class EventDTO {
     private String location;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
+    private String file_path;
     private Boolean status;
     private ManagerDTO manager;
     private List<EventBookingDTO> bookings;
