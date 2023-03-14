@@ -19,27 +19,32 @@ public class UserController {
     @Autowired
     private IUserService userService;
 
-    @Autowired
-    private Author authorizeService;
-
     @GetMapping
     public ResponseEntity<ResponseObject> getAll(HttpSession httpSession) {
-        List<UserDTO> result = userService.getAll();
-        return ResponseEntity.status(HttpStatus.OK)
-                             .body(new ResponseObject(HttpStatus.OK.toString(), "List user", result));
+        if(Author.isAuthorOfAdmin(httpSession)) {
+            List<UserDTO> result = userService.getAll();
+            return ResponseEntity.status(HttpStatus.OK)
+                                 .body(new ResponseObject(HttpStatus.OK.toString(), "List user", result));
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                             .body(new ResponseObject(HttpStatus.UNAUTHORIZED.toString(), "Admin only", null));
     }
 
     @GetMapping("{id}")
     public ResponseEntity<ResponseObject> getUserById(HttpSession httpSession, @PathVariable Long id) {
-        UserDTO result = userService.getUserById(id);
-        if(result != null) {
-            return ResponseEntity.status(HttpStatus.OK)
-                                 .body(new ResponseObject(HttpStatus.OK.toString(), "User details", result));
+        if(Author.isAuthorOfAdmin(httpSession) || Author.isAuthorOfUser(httpSession) || Author.isAuthorOfManager(httpSession)) {
+            UserDTO result = userService.getUserById(id);
+            if(result != null) {
+                return ResponseEntity.status(HttpStatus.OK)
+                        .body(new ResponseObject(HttpStatus.OK.toString(), "User details", result));
+            }
+            else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new ResponseObject(HttpStatus.NOT_FOUND.toString(), "User with ID " + id + " not found", null));
+            }
         }
-        else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                 .body(new ResponseObject(HttpStatus.NOT_FOUND.toString(), "User with ID " + id + " not found", null));
-        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                             .body(new ResponseObject(HttpStatus.UNAUTHORIZED.toString(), "Unauthorized", null));
     }
 
     @PostMapping
@@ -57,14 +62,18 @@ public class UserController {
 
     @DeleteMapping("{id}")
     public ResponseEntity<ResponseObject> deleteById(HttpSession httpSession, @PathVariable Long id) {
-        boolean isDeleted = userService.deleteUserById(id);
-        if(isDeleted) {
-            return ResponseEntity.status(HttpStatus.OK)
-                                 .body(new ResponseObject(HttpStatus.OK.toString(), "User with ID " + id + " deleted successfully", null));
+        if(Author.isAuthorOfAdmin(httpSession)) {
+            boolean isDeleted = userService.deleteUserById(id);
+            if(isDeleted) {
+                return ResponseEntity.status(HttpStatus.OK)
+                        .body(new ResponseObject(HttpStatus.OK.toString(), "User with ID " + id + " deleted successfully", null));
+            }
+            else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new ResponseObject(HttpStatus.NOT_FOUND.toString(), "User with ID " + id + " not found", null));
+            }
         }
-        else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                 .body(new ResponseObject(HttpStatus.NOT_FOUND.toString(), "User with ID " + id + " not found", null));
-        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                             .body(new ResponseObject(HttpStatus.UNAUTHORIZED.toString(), "Admin only", null));
     }
 }
