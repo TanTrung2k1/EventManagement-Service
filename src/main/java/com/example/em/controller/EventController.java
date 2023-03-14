@@ -27,6 +27,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 
@@ -69,31 +70,57 @@ public class EventController {
 //        ResponseObject response = new ResponseObject(HttpStatus.UNAUTHORIZED.toString(), "Manager only", null);
 //        return ResponseEntity.status(HttpStatus.CREATED).body(response);
 //    }
+    @PostMapping
+    public ResponseEntity<ResponseObject> create(@RequestParam String name,
+                                                @RequestParam String location,
+                                                @RequestParam String startTime,
+                                                @RequestParam String endTime,
+                                                @RequestParam String desc,
+                                                @RequestParam String image,
+                                                HttpSession session){
 
-    @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ResponseObject> create(@RequestParam(value = "name") String name,
-                                                 @RequestParam(value = "location") String location,
-                                                 @RequestParam(value = "startTime") String startTime,
-                                                 @RequestParam(value = "endTime") String endTime,
-                                                 @RequestParam(value = "desc") String desc,
-                                                 @RequestParam(value = "file") MultipartFile file,
-                                                 HttpSession session){
-        if(isAuthorOfManager(session)) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-            CEventDTO eventDTO = CEventDTO.builder().name(name).location(location).startTime(LocalDateTime.parse(startTime, formatter)).endTime(LocalDateTime.parse(endTime, formatter)).desc(desc).build();
-            DEventDTO result = service.addEvent(eventDTO, session, file);
-
-            if(result != null){
-                ResponseObject response = new ResponseObject(HttpStatus.CREATED.toString(), "Event created successfully", result);
-                return ResponseEntity.status(HttpStatus.CREATED).body(response);
-            }else{
-                ResponseObject response = new ResponseObject(HttpStatus.BAD_REQUEST.toString(), "Can't create event", eventDTO);
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-            }
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        CEventDTO eventDTO = CEventDTO.builder().name(name).location(location).startTime(LocalDateTime.parse(startTime, formatter)).endTime(LocalDateTime.parse(endTime, formatter)).desc(desc).stringImage(image).build();
+        System.out.println(image);
+    if(isAuthorOfManager(session)) {
+        CEventDTO result = service.addEvent(eventDTO, session);
+        if(result != null){
+            ResponseObject response = new ResponseObject(HttpStatus.CREATED.toString(), "Event create successfully", result);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        }else{
+            ResponseObject response = new ResponseObject(HttpStatus.BAD_REQUEST.toString(), "Can't create event", eventDTO);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
-        ResponseObject response = new ResponseObject(HttpStatus.UNAUTHORIZED.toString(), "Manager only", null);
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
+    ResponseObject response = new ResponseObject(HttpStatus.UNAUTHORIZED.toString(), "Manager only", null);
+    return ResponseEntity.status(HttpStatus.CREATED).body(response);
+}
+
+//    @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+//    public ResponseEntity<ResponseObject> create(@RequestParam(value = "name") String name,
+//                                                 @RequestParam(value = "location") String location,
+//                                                 @RequestParam(value = "startTime") String startTime,
+//                                                 @RequestParam(value = "endTime") String endTime,
+//                                                 @RequestParam(value = "desc") String desc,
+//                                                 @RequestParam(value = "file") MultipartFile file,
+//                                                 HttpSession session){
+//        if(isAuthorOfManager(session)) {
+//            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+//            CEventDTO eventDTO = CEventDTO.builder().name(name).location(location).startTime(LocalDateTime.parse(startTime, formatter)).endTime(LocalDateTime.parse(endTime, formatter)).desc(desc).build();
+//            DEventDTO result = service.addEvent(eventDTO, session, file);
+//
+//            if(result != null){
+//                ResponseObject response = new ResponseObject(HttpStatus.CREATED.toString(), "Event created successfully", result);
+//                return ResponseEntity.status(HttpStatus.CREATED).body(response);
+//            }else{
+//                ResponseObject response = new ResponseObject(HttpStatus.BAD_REQUEST.toString(), "Can't create event", eventDTO);
+//                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+//            }
+//        }
+//        ResponseObject response = new ResponseObject(HttpStatus.UNAUTHORIZED.toString(), "Manager only", null);
+//        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+//    }
+
     @DeleteMapping("{id}")
     public ResponseEntity<ResponseObject> deleteById(HttpSession session, @PathVariable Long id) {
         if (isAuthorOfManager(session)) {

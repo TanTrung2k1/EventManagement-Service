@@ -42,18 +42,28 @@ public class EventServiceImpl implements IEventService {
         List<Event> list = repo.findAll();
         List<EventDTO> result = new ArrayList<>();
         for(Event event : list){
-            String path = event.getFilePath();
-            int lastBackslashIndex = path.lastIndexOf('\\');
-            String filenameWithExtension = path.substring(lastBackslashIndex + 1);
-            String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
-            String fileUrl = baseUrl + "/image/" + filenameWithExtension;
+            //String path = event.getFilePath();
+            //int lastBackslashIndex = path.lastIndexOf('\\');
+            //String filenameWithExtension = path.substring(lastBackslashIndex + 1);
+            //String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
+            //String fileUrl = baseUrl + "/image/" + filenameWithExtension;
 
             EventDTO eventDTO = modelMapper.map(event, EventDTO.class);
 
-            eventDTO.setFile_path(fileUrl);
+            //eventDTO.setFile_path(fileUrl);
             result.add(eventDTO);
         }
         return result;
+    }
+
+    @Override
+    public CEventDTO addEvent(CEventDTO eventDTO, HttpSession session) {
+        Manager manager = getManagerInSession(session);
+        Event event = modelMapper.map(eventDTO, Event.class);
+        event.setManager(manager);
+        event.setStatus(true);
+        repo.save(event);
+        return modelMapper.map(event, CEventDTO.class);
     }
 
     private Manager getManagerInSession(HttpSession session){
@@ -73,65 +83,65 @@ public class EventServiceImpl implements IEventService {
 //        return modelMapper.map(event, CEventDTO.class);
 //    }
 
-    public DEventDTO addEvent(CEventDTO eventDTO, HttpSession session, MultipartFile file) {
-        // create new Event entity from DTO
-        Event event = new Event();
-        event.setName(eventDTO.getName());
-        event.setLocation(eventDTO.getLocation());
-        event.setStartTime(eventDTO.getStartTime());
-        event.setEndTime(eventDTO.getEndTime());
-        event.setDesc(eventDTO.getDesc());
-        event.setStatus(true);
-
-        // get the currently logged in manager and set as the event's manager
-        Manager manager = getManagerInSession(session);
-        event.setManager(manager);
-
-        // check if file is empty
-        if (file.isEmpty()) {
-            return null;
-        }
-
-        // generate file name using UUID to ensure uniqueness
-        String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
-
-        // Get the path to the project's image directory
-        String projectDir = System.getProperty("user.dir");
-        Path imageDir = Paths.get(projectDir, "images");
-
-        // create file path using the image directory and generated file name
-        String filePath = imageDir.resolve(fileName).toString();
-
-        // save file to disk
-        try {
-            Path path = Paths.get(filePath);
-            Files.write(path, file.getBytes());
-        } catch (IOException e) {
-            // handle file write error
-            return null;
-        }
-
-        // set file path in the event entity
-        event.setFilePath(filePath);
-
-        // save event entity to database
-        repo.save(event);
-
-        // create URL to view uploaded image
-        String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
-        String fileUrl = baseUrl + "/image/" + fileName;
-
-        DEventDTO result = DEventDTO.builder()
-                .name(event.getName())
-                .location(event.getLocation())
-                .startTime(event.getStartTime())
-                .endTime(event.getEndTime())
-                .desc(event.getDesc())
-                .file_path(fileUrl)
-                .build();
-        // convert the saved entity back to DTO and return it
-        return result;
-    }
+//    public DEventDTO addEvent(CEventDTO eventDTO, HttpSession session, MultipartFile file) {
+//        // create new Event entity from DTO
+//        Event event = new Event();
+//        event.setName(eventDTO.getName());
+//        event.setLocation(eventDTO.getLocation());
+//        event.setStartTime(eventDTO.getStartTime());
+//        event.setEndTime(eventDTO.getEndTime());
+//        event.setDesc(eventDTO.getDesc());
+//        event.setStatus(true);
+//
+//        // get the currently logged in manager and set as the event's manager
+//        Manager manager = getManagerInSession(session);
+//        event.setManager(manager);
+//
+//        // check if file is empty
+//        if (file.isEmpty()) {
+//            return null;
+//        }
+//
+//        // generate file name using UUID to ensure uniqueness
+//        String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+//
+//        // Get the path to the project's image directory
+//        String projectDir = System.getProperty("user.dir");
+//        Path imageDir = Paths.get(projectDir, "images");
+//
+//        // create file path using the image directory and generated file name
+//        String filePath = imageDir.resolve(fileName).toString();
+//
+//        // save file to disk
+//        try {
+//            Path path = Paths.get(filePath);
+//            Files.write(path, file.getBytes());
+//        } catch (IOException e) {
+//            // handle file write error
+//            return null;
+//        }
+//
+//        // set file path in the event entity
+//        event.setFilePath(filePath);
+//
+//        // save event entity to database
+//        repo.save(event);
+//
+//        // create URL to view uploaded image
+//        String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
+//        String fileUrl = baseUrl + "/image/" + fileName;
+//
+//        DEventDTO result = DEventDTO.builder()
+//                .name(event.getName())
+//                .location(event.getLocation())
+//                .startTime(event.getStartTime())
+//                .endTime(event.getEndTime())
+//                .desc(event.getDesc())
+//                .file_path(fileUrl)
+//                .build();
+//        // convert the saved entity back to DTO and return it
+//        return result;
+//    }
 
     @Override
     public Boolean deleteEventById(Long id) {
@@ -144,6 +154,11 @@ public class EventServiceImpl implements IEventService {
             result = true;
         }
         return result;
+    }
+
+    @Override
+    public Event getEventById(Long eventId) {
+        return repo.findById(eventId).get();
     }
 
     private Manager getManagerById(Long id){

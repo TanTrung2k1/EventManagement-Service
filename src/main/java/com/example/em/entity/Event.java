@@ -25,8 +25,14 @@ public class Event {
     @Column(name = "name")
     private String name;
     private String location;
-    @Column(name = "file_path")
-    private String filePath;
+    //@Column(name = "file_path")
+    //private String filePath;
+//    @Lob
+//    private byte[] image;
+    @Lob
+    @Column
+    private String stringImage;
+
     @Column(name = "start_time")
     private LocalDateTime startTime;
     @Column(name = "end_time")
