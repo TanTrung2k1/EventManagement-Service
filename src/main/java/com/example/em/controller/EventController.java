@@ -39,9 +39,6 @@ public class EventController {
     @Autowired
     private IEventService service;
 
-
-
-
     @GetMapping
     public ResponseEntity<ResponseObject> getAll(HttpSession session) {
         if(isAuthorOfManager(session) || isAuthorOfAdmin(session) || isAuthorOfUser(session)){
@@ -51,6 +48,17 @@ public class EventController {
         }
         ResponseObject response = new ResponseObject(HttpStatus.UNAUTHORIZED.toString(), "Need Login", null);
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+    }
+
+    @GetMapping("{name}")
+    public ResponseEntity<ResponseObject> getAllEventByName(HttpSession session, @PathVariable String name) {
+//        if(isAuthorOfManager(session) || isAuthorOfAdmin(session) || isAuthorOfUser(session)){
+            List<EventDTO> result = service.getAllEventByName(name);
+            return ResponseEntity.status(HttpStatus.OK)
+                                 .body(new ResponseObject(HttpStatus.OK.toString(), "List event", result));
+//        }
+//        ResponseObject response = new ResponseObject(HttpStatus.UNAUTHORIZED.toString(), "Need Login", null);
+//        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 
 

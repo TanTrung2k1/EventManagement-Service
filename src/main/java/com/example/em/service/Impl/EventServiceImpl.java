@@ -57,6 +57,17 @@ public class EventServiceImpl implements IEventService {
     }
 
     @Override
+    public List<EventDTO> getAllEventByName(String name) {
+        List<Event> list = repo.findByStatusTrueAndNameContaining(name);
+        List<EventDTO> result = new ArrayList<>();
+        for(Event event : list){
+            EventDTO eventDTO = modelMapper.map(event, EventDTO.class);
+            result.add(eventDTO);
+        }
+        return result;
+    }
+
+    @Override
     public CEventDTO addEvent(CEventDTO eventDTO, HttpSession session) {
         Manager manager = getManagerInSession(session);
         Event event = modelMapper.map(eventDTO, Event.class);

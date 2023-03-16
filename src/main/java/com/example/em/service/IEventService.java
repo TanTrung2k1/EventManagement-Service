@@ -13,6 +13,7 @@ import java.util.List;
 @Service
 public interface IEventService {
     List<EventDTO> getAll();
+    List<EventDTO> getAllEventByName(String name);
     //DEventDTO addEvent(CEventDTO eventDTO, HttpSession session, MultipartFile file);
     CEventDTO addEvent(CEventDTO eventDTO, HttpSession session);
     Boolean deleteEventById(Long id);
