@@ -24,9 +24,9 @@ public class BookingController {
     @Autowired
     private IEventBookingService bookingService;
     @PostMapping
-    public ResponseEntity<ResponseObject> createBooking(HttpSession session, @RequestBody CBookingDTO bookingDTO){
-        if(isAuthorOfUser(session)){
-            CBookingDTO result = bookingService.createBooking(bookingDTO, session);
+    public ResponseEntity<ResponseObject> createBooking(@RequestBody CBookingDTO bookingDTO){
+
+            CBookingDTO result = bookingService.createBooking(bookingDTO);
             if(result != null){
                 ResponseObject response = new ResponseObject(HttpStatus.CREATED.toString(), "Manager create successfully", result);
                 return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -34,14 +34,12 @@ public class BookingController {
                 ResponseObject response = new ResponseObject(HttpStatus.BAD_REQUEST.toString(), "Can't create booking event", bookingDTO);
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
-        }
-        ResponseObject response = new ResponseObject(HttpStatus.UNAUTHORIZED.toString(), "User only", null);
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+
     }
 
     @DeleteMapping("{id}")
     public ResponseEntity<ResponseObject> deleteById(HttpSession session, @PathVariable Long id) {
-        if (isAuthorOfUser(session)) {
+
             boolean isDeleted = bookingService.cancelBooking(id);
             if (isDeleted) {
                 ResponseObject response = new ResponseObject(HttpStatus.OK.toString(), "Booking with ID " + id + " canceled successfully", null);
@@ -50,14 +48,13 @@ public class BookingController {
                 ResponseObject response = new ResponseObject(HttpStatus.NOT_FOUND.toString(), "Canceled booking with ID " + id + " not found", null);
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
             }
-        }
-        ResponseObject response = new ResponseObject(HttpStatus.UNAUTHORIZED.toString(), "User only", null);
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+
+
     }
 
     @GetMapping("{id}")
     public ResponseEntity<ResponseObject> getAllListBooking(HttpSession session, @PathVariable Long id){
-        if(isAuthorOfManager(session)){
+
             List<BookingDTO> result = bookingService.getAllBookingOfEvent(id);
             if(result == null){
                 ResponseObject response = new ResponseObject(HttpStatus.NOT_FOUND.toString(), "Event with ID " + id + " not found", null);
@@ -65,8 +62,6 @@ public class BookingController {
             }
             ResponseObject response = new ResponseObject(HttpStatus.OK.toString(), "List booking of event id " + id, result);
             return ResponseEntity.status(HttpStatus.OK).body(response);
-        }
-        ResponseObject response = new ResponseObject(HttpStatus.UNAUTHORIZED.toString(), "Manager only", null);
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+
     }
 }

@@ -10,5 +10,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class CBookingDTO {
     private Long eventId;
+    private Long userId;
     private LocalDateTime timeBooking;
 }

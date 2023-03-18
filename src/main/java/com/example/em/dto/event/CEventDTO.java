@@ -21,6 +21,7 @@ public class CEventDTO {
     private LocalDateTime endTime;
     private String desc;
     private String stringImage;
+    private Long managerId;
 
 
 }

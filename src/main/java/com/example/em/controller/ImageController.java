@@ -1,5 +1,7 @@
 package com.example.em.controller;
 
+import com.example.em.entity.Event;
+import com.example.em.service.IEventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -21,6 +23,19 @@ import java.nio.file.Paths;
 
 @RestController
 public class ImageController {
+
+//    @Autowired
+//    private IEventService service;
+//    @GetMapping("/image/{id}")
+//    public ResponseEntity<byte[]> downloadFile(@PathVariable("id")Long eventId) {
+//        Event event = service.getEventById(eventId);
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.add(HttpHeaders.CONTENT_DISPOSITION, "file");
+//        return ResponseEntity.ok()
+//                .headers(headers)
+//                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+//                .body(event.getImage());
+//    }
     @GetMapping("/image/{fileName:.+}")
     public ResponseEntity<Resource> getImage(@PathVariable String fileName) throws IOException {
         // Get the path to the project's image directory

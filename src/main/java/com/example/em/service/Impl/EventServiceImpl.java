@@ -57,13 +57,15 @@ public class EventServiceImpl implements IEventService {
     }
 
     @Override
-    public CEventDTO addEvent(CEventDTO eventDTO, HttpSession session) {
-        Manager manager = getManagerInSession(session);
+    public CEventDTO addEvent(CEventDTO eventDTO) {
+        Manager manager = managerRepo.getReferenceById(eventDTO.getManagerId());
         Event event = modelMapper.map(eventDTO, Event.class);
         event.setManager(manager);
         event.setStatus(true);
         repo.save(event);
-        return modelMapper.map(event, CEventDTO.class);
+        CEventDTO result =  modelMapper.map(event, CEventDTO.class);
+        result.setManagerId(eventDTO.getManagerId());
+        return result;
     }
 
     private Manager getManagerInSession(HttpSession session){

@@ -14,7 +14,7 @@ import java.util.List;
 public interface IEventService {
     List<EventDTO> getAll();
     //DEventDTO addEvent(CEventDTO eventDTO, HttpSession session, MultipartFile file);
-    CEventDTO addEvent(CEventDTO eventDTO, HttpSession session);
+    CEventDTO addEvent(CEventDTO eventDTO);
     Boolean deleteEventById(Long id);
 
     Event getEventById(Long eventId);

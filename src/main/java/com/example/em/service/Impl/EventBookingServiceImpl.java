@@ -30,8 +30,8 @@ public class EventBookingServiceImpl implements IEventBookingService {
     @Autowired
     private UserRepository userRepo;
     @Override
-    public CBookingDTO createBooking(CBookingDTO bookingDTO, HttpSession session) {
-        User user = getUserInSession(session);
+    public CBookingDTO createBooking(CBookingDTO bookingDTO) {
+        User user = userRepo.getReferenceById(bookingDTO.getUserId());
         Event event = getEventById(bookingDTO.getEventId());
         if(event == null){
             return null;

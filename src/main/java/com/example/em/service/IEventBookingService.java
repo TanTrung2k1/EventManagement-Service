@@ -9,7 +9,7 @@ import java.util.List;
 
 @Service
 public interface IEventBookingService {
-    CBookingDTO createBooking(CBookingDTO bookingDTO, HttpSession session);
+    CBookingDTO createBooking(CBookingDTO bookingDTO);
     Boolean cancelBooking(Long id);
     List<BookingDTO> getAllBookingOfEvent(Long id);
 }
