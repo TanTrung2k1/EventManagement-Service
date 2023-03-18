@@ -10,7 +10,7 @@ import java.util.List;
 
 @Service
 public interface IManagerService {
-    CreateManagerDTO addManager(CreateManagerDTO managerDTO, HttpSession session);
+    CreateManagerDTO addManager(CreateManagerDTO managerDTO);
     List<ManagerDTO> getAll();
     Boolean deleteManagerById(Long id);
     ManagerDTO getManagerById(Long id);

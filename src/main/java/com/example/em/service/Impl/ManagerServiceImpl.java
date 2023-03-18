@@ -34,12 +34,15 @@ public class ManagerServiceImpl implements IManagerService {
     }
 
     @Override
-    public CreateManagerDTO addManager(CreateManagerDTO managerDTO, HttpSession session) {
+    public CreateManagerDTO addManager(CreateManagerDTO managerDTO) {
+        Admin admin = adminRepo.getReferenceById(managerDTO.getAdminId());
         Manager manager = modelMapper.map(managerDTO, Manager.class);
-        manager.setAdmin(getAdminInSession(session));
+        manager.setAdmin(admin);
         manager.setStatus(true);
         managerRepo.save(manager);
-        return modelMapper.map(manager, CreateManagerDTO.class);
+        CreateManagerDTO result =  modelMapper.map(manager, CreateManagerDTO.class);
+        result.setAdminId(managerDTO.getAdminId());
+        return result;
     }
 
     @Override

@@ -12,4 +12,5 @@ public class CreateManagerDTO {
     private String name;
     private String password;
     private String phoneNumber;
+    private Long adminId;
 }
