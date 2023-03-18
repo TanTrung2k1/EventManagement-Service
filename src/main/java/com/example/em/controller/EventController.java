@@ -28,13 +28,12 @@ public class EventController {
 
     @GetMapping
     public ResponseEntity<ResponseObject> getAll(HttpSession session) {
-        if(isAuthorOfManager(session) || isAuthorOfAdmin(session) || isAuthorOfUser(session)){
+
             List<EventDTO> result = service.getAll();
             ResponseObject response = new ResponseObject(HttpStatus.OK.toString(), "List event", result);
             return ResponseEntity.status(HttpStatus.OK).body(response);
-        }
-        ResponseObject response = new ResponseObject(HttpStatus.UNAUTHORIZED.toString(), "Need Login", null);
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+
+
     }
 
 
@@ -121,7 +120,7 @@ public class EventController {
 
     @DeleteMapping("{id}")
     public ResponseEntity<ResponseObject> deleteById(HttpSession session, @PathVariable Long id) {
-        if (isAuthorOfManager(session)) {
+
             boolean isDeleted = service.deleteEventById(id);
             if (isDeleted) {
                 ResponseObject response = new ResponseObject(HttpStatus.OK.toString(), "Event with ID " + id + " canceled successfully", null);
@@ -130,9 +129,7 @@ public class EventController {
                 ResponseObject response = new ResponseObject(HttpStatus.NOT_FOUND.toString(), "Canceled event with ID " + id + " not found", null);
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
             }
-        }
-        ResponseObject response = new ResponseObject(HttpStatus.UNAUTHORIZED.toString(), "Manager only", null);
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+
     }
 
 }

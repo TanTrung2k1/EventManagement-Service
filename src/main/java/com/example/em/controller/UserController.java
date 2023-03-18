@@ -20,19 +20,17 @@ public class UserController {
     private IUserService userService;
 
     @GetMapping
-    public ResponseEntity<ResponseObject> getAll(HttpSession httpSession) {
-        if(Author.isAuthorOfAdmin(httpSession)) {
+    public ResponseEntity<ResponseObject> getAll() {
+
             List<UserDTO> result = userService.getAll();
             return ResponseEntity.status(HttpStatus.OK)
                                  .body(new ResponseObject(HttpStatus.OK.toString(), "List user", result));
-        }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                             .body(new ResponseObject(HttpStatus.UNAUTHORIZED.toString(), "Admin only", null));
+
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<ResponseObject> getUserById(HttpSession httpSession, @PathVariable Long id) {
-        if(Author.isAuthorOfAdmin(httpSession) || Author.isAuthorOfUser(httpSession) || Author.isAuthorOfManager(httpSession)) {
+    public ResponseEntity<ResponseObject> getUserById(@PathVariable Long id) {
+
             UserDTO result = userService.getUserById(id);
             if(result != null) {
                 return ResponseEntity.status(HttpStatus.OK)
@@ -42,9 +40,7 @@ public class UserController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(new ResponseObject(HttpStatus.NOT_FOUND.toString(), "User with ID " + id + " not found", null));
             }
-        }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                             .body(new ResponseObject(HttpStatus.UNAUTHORIZED.toString(), "Unauthorized", null));
+
     }
 
     @PostMapping
@@ -61,8 +57,8 @@ public class UserController {
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<ResponseObject> deleteById(HttpSession httpSession, @PathVariable Long id) {
-        if(Author.isAuthorOfAdmin(httpSession)) {
+    public ResponseEntity<ResponseObject> deleteById(@PathVariable Long id) {
+
             boolean isDeleted = userService.deleteUserById(id);
             if(isDeleted) {
                 return ResponseEntity.status(HttpStatus.OK)
@@ -72,8 +68,6 @@ public class UserController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(new ResponseObject(HttpStatus.NOT_FOUND.toString(), "User with ID " + id + " not found", null));
             }
-        }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                             .body(new ResponseObject(HttpStatus.UNAUTHORIZED.toString(), "Admin only", null));
+
     }
 }
