@@ -159,12 +159,12 @@ public class EventServiceImpl implements IEventService {
     }
 
     @Override
-    public DEventDTO getEventById(Long eventId) {
-        DEventDTO result = null;
+    public EventDTO getEventById(Long eventId) {
+        EventDTO result = null;
         Optional<Event> optionalEvent = repo.findById(eventId);
         if(optionalEvent.isPresent()){
             Event event = optionalEvent.get();
-            result = modelMapper.map(event, DEventDTO.class);
+            result = modelMapper.map(event, EventDTO.class);
         }
         return result;
     }

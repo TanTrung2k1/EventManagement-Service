@@ -41,7 +41,7 @@ public class EventController {
     @GetMapping("{id}")
     public ResponseEntity<ResponseObject> getEventById(@PathVariable Long id){
 
-        DEventDTO result = service.getEventById(id);
+        EventDTO result = service.getEventById(id);
         if(result != null){
             ResponseObject response = new ResponseObject(HttpStatus.OK.toString(), "Event details", result);
             return ResponseEntity.status(HttpStatus.OK).body(response);
