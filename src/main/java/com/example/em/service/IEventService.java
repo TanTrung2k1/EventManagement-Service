@@ -17,5 +17,7 @@ public interface IEventService {
     CEventDTO addEvent(CEventDTO eventDTO);
     Boolean deleteEventById(Long id);
 
-    Event getEventById(Long eventId);
+    DEventDTO getEventById(Long eventId);
+    DEventDTO updateEvent(DEventDTO eventDTO);
+    List<EventDTO> searchEventsByName(String name);
 }

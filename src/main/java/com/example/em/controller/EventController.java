@@ -1,7 +1,9 @@
 package com.example.em.controller;
 
 import com.example.em.dto.event.CEventDTO;
+import com.example.em.dto.event.DEventDTO;
 import com.example.em.dto.listEvent.EventDTO;
+import com.example.em.dto.manager.ManagerDTO;
 import com.example.em.dto.response.ResponseObject;
 import com.example.em.service.IEventService;
 
@@ -34,6 +36,44 @@ public class EventController {
             return ResponseEntity.status(HttpStatus.OK).body(response);
 
 
+    }
+
+    @GetMapping("{id}")
+    public ResponseEntity<ResponseObject> getEventById(@PathVariable Long id){
+
+        DEventDTO result = service.getEventById(id);
+        if(result != null){
+            ResponseObject response = new ResponseObject(HttpStatus.OK.toString(), "Event details", result);
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        }else{
+            ResponseObject response = new ResponseObject(HttpStatus.NOT_FOUND.toString(), "Event with ID " + id + " not found", null);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+
+
+    }
+    @GetMapping("/search")
+    public ResponseEntity<ResponseObject> searchEventsByName(@RequestParam String name) {
+        List<EventDTO> result = service.searchEventsByName(name);
+        if(!result.isEmpty()){
+            ResponseObject response = new ResponseObject(HttpStatus.OK.toString(), "Event details", result);
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        }else{
+            ResponseObject response = new ResponseObject(HttpStatus.NOT_FOUND.toString(), "Not found", null);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+    }
+
+    @PutMapping()
+    public ResponseEntity<ResponseObject> updateEvent(@RequestBody DEventDTO eventDTO){
+        DEventDTO result = service.updateEvent(eventDTO);
+        if(result != null){
+            ResponseObject response = new ResponseObject(HttpStatus.OK.toString(), "Update success", result);
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        }else{
+            ResponseObject response = new ResponseObject(HttpStatus.NOT_FOUND.toString(), "Event with ID " + eventDTO.getId() + " not found", null);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
     }
 
 

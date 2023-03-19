@@ -159,9 +159,49 @@ public class EventServiceImpl implements IEventService {
     }
 
     @Override
-    public Event getEventById(Long eventId) {
-        return repo.findById(eventId).get();
+    public DEventDTO getEventById(Long eventId) {
+        DEventDTO result = null;
+        Optional<Event> optionalEvent = repo.findById(eventId);
+        if(optionalEvent.isPresent()){
+            Event event = optionalEvent.get();
+            result = modelMapper.map(event, DEventDTO.class);
+        }
+        return result;
     }
+
+    @Override
+    public DEventDTO updateEvent(DEventDTO eventDTO) {
+        DEventDTO result = null;
+        Optional<Event> optionalEvent = repo.findById(eventDTO.getId());
+        if(optionalEvent.isPresent()){
+            Event event = optionalEvent.get();
+
+            event.setName(eventDTO.getName());
+            event.setLocation(eventDTO.getLocation());
+            event.setStartTime(eventDTO.getStartTime());
+            event.setEndTime(eventDTO.getEndTime());
+            event.setDesc(eventDTO.getDesc());
+
+
+            repo.save(event);
+
+            result = modelMapper.map(event, DEventDTO.class);
+        }
+        return result;
+    }
+
+    @Override
+    public List<EventDTO> searchEventsByName(String name) {
+        List<EventDTO> result = new ArrayList<>();
+        List<Event> event = repo.findByNameContainingIgnoreCase(name);
+        for (Event ev: event) {
+            EventDTO eventDTO = modelMapper.map(ev, EventDTO.class);
+            result.add(eventDTO);
+        }
+        return result;
+
+    }
+
 
     private Manager getManagerById(Long id){
         return managerRepo.getReferenceById(id);

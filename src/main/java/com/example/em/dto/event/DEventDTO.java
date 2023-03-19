@@ -12,12 +12,14 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 public class DEventDTO {
+
+    private Long id;
     private String name;
     private String location;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private String desc;
-    private String file_path;
+
 
 
 }
